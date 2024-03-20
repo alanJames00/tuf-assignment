@@ -13,12 +13,15 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
+import CodeMirror from '@uiw/react-codemirror';
+
 
 export default function Page() {
 
 
     // States
     const [language, SetLanguage] = useState('C++');
+    const [codeString, setCodeString] = useState('');
 
 
     return (
@@ -44,15 +47,30 @@ export default function Page() {
                             </Select>
                         </div>
                     </div>
-                </div>
-                <div className="space-y-2">
+
+                    <div className="space-y-2">
                     <Label htmlFor="stdin">Standard input (stdin)</Label>
                     <Textarea className="min-h-[100px]" id="stdin" placeholder="Enter the standard input for your code" />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="source-code">Source code</Label>
-                    <Textarea className="min-h-[200px]" id="source-code" placeholder="Enter your code" />
+
                 </div>
+
+                <div className="space-y-2">
+                    {/*                 
+                    <Textarea className="min-h-[200px]" id="source-code" placeholder="Enter your code" />
+                */}
+
+                    <Label htmlFor="source-code">Source code</Label>
+                    <CodeMirror 
+                        height="400px"  
+                        width="100%"
+                        value={codeString}
+                        lang="python"
+                        />
+                </div>
+
+                
+
             </div>
             <Button className="mx-auto flex md:static">Submit code</Button>
         </div>
