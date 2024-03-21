@@ -1,7 +1,47 @@
+'use client'
 
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
+import { useEffect, useState } from "react"
+
+// @ts-ignore
+import { encode, decode } from 'base-64';
+
 
 export default function Component() {
+
+
+    const [submissions, setSubmissions] = useState([{ username: 'loading...', language: 'loading...', stdin: 'loading...', timestamp: 'loading...', sourceCode: 'loading...', stdout: 'loading...' }]);
+
+
+    async function getSubmissions() {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/submissions`);
+            const data = await res.json();
+            console.log(data);
+
+            let decodedSubmissions = data.map((submission: any) => {
+                return {
+                    username: submission.username,
+                    language: submission.language,
+                    stdin: decode(submission.stdin),
+                    timestamp: submission.timestamp,
+                    sourceCode: decode(submission.sourcecode),
+                    stdout: decode(submission.stdout),
+                }
+            });
+
+            setSubmissions(decodedSubmissions);
+
+        } catch (error) {
+            alert(error)
+            console.log('error', error);
+        }
+    }
+
+    useEffect(() => {
+        getSubmissions();
+    }, []);
+
     return (
         <div className="w-full overflow-auto ml-2 mt-2">
             <Table>
@@ -11,108 +51,40 @@ export default function Component() {
                         <TableHead>Language</TableHead>
                         <TableHead>Stdin</TableHead>
                         <TableHead>Timestamp</TableHead>
+                        <TableHead>Stdout</TableHead>
                         <TableHead className="w-[500px]">Source Code</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    <TableRow>
-                        <TableCell className="flex items-center space-x-2">
-                            <img
-                                alt="User avatar"
-                                className="rounded-full"
-                                height="32"
-                                src={`https://robohash.org/coda92`}
-                                style={{
-                                    aspectRatio: "32/32",
-                                    objectFit: "cover",
-                                }}
-                                width="32"
-                            />
-                            <span className="font-medium">johndoe</span>
-                        </TableCell>
-                        <TableCell>JavaScript</TableCell>
-                        <TableCell>2,4,6,8,10</TableCell>
-                        <TableCell>2023-08-15T10:30:00Z</TableCell>
-                        <TableCell>2023-08-15T10:30:00Z 2023-08-15T10:30:00Z2023-08-15T10:30:00Z2023-08-15T10:30:00Z2023-08-15T10</TableCell>
 
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="flex items-center space-x-2">
-                            <img
-                                alt="User avatar"
-                                className="rounded-full"
-                                height="32"
-                                src={`https://robohash.org/coda52`}
-                                style={{
-                                    aspectRatio: "32/32",
-                                    objectFit: "cover",
-                                }}
-                                width="32"
-                            />
-                            <span className="font-medium">alicecodez</span>
-                        </TableCell>
-                        <TableCell>Python</TableCell>
-                        <TableCell>1,3,5,7,9</TableCell>
-                        <TableCell>2023-08-15T10:35:00Z</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="flex items-center space-x-2">
-                            <img
-                                alt="User avatar"
-                                className="rounded-full"
-                                height="32"
-                                src={`https://robohash.org/coda6`}
-                                style={{
-                                    aspectRatio: "32/32",
-                                    objectFit: "cover",
-                                }}
-                                width="32"
-                            />
-                            <span className="font-medium">scriptmaster</span>
-                        </TableCell>
-                        <TableCell>Node.js</TableCell>
-                        <TableCell>hello,world</TableCell>
-                        <TableCell>2023-08-15T10:40:00Z</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="flex items-center space-x-2">
-                            <img
-                                alt="User avatar"
-                                className="rounded-full"
-                                height="32"
-                                src={`https://robohash.org/coda`}
-                                style={{
-                                    aspectRatio: "32/32",
-                                    objectFit: "cover",
-                                }}
-                                width="32"
-                            />
-                            <span className="font-medium">code_ninja</span>
-                        </TableCell>
-                        <TableCell>Java</TableCell>
-                        <TableCell>{`public static void main(String[] args) {}`}</TableCell>
-                        <TableCell>2023-08-15T10:45:00Z</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell className="flex items-center space-x-2">
-                            <img
-                                alt="User avatar"
-                                className="rounded-full"
-                                height="32"
-                                src={`https://robohash.org/coda1`}
+                    {
+                        submissions.map((submission: any) => {
+                            return (
+                                <TableRow>
+                                    <TableCell className="flex items-center space-x-2">
+                                        <img
+                                            alt="User avatar"
+                                            className="rounded-full"
+                                            height="32"
+                                            src={`https://robohash.org/${submission.username}`}
+                                            style={{
+                                                aspectRatio: "32/32",
+                                                objectFit: "cover",
+                                            }}
+                                            width="32"
+                                        />
+                                        <span className="font-medium">{submission.username}</span>
+                                    </TableCell>
+                                    <TableCell>{submission.language}</TableCell>
+                                    <TableCell>{submission.stdin}</TableCell>
+                                    <TableCell>{submission.timestamp}</TableCell>
+                                    <TableCell>{submission.stdout}</TableCell>
+                                    <TableCell>{submission.sourceCode.substring(0, 100)}</TableCell>
 
-                                style={{
-                                    aspectRatio: "32/32",
-                                    objectFit: "cover",
-                                }}
-                                width="32"
-                            />
-                            <span className="font-medium">coding_queen</span>
-                        </TableCell>
-                        <TableCell>C++</TableCell>
-                        <TableCell>using namespace std;</TableCell>
-                        <TableCell>2023-08-15T10:50:00Z</TableCell>
-                    </TableRow>
+                                </TableRow>
+                            )
+                        })}
+
                 </TableBody>
             </Table>
         </div>
