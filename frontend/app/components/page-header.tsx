@@ -23,10 +23,7 @@ export default function PageHeader() {
                     View All Submissions
                 </Link>
             </nav>
-            <div className="ml-auto flex items-center space-x-4">
-
-                <Toggle aria-label="Toggle theme" className="ml-4">Dark Mode</Toggle>
-            </div>
+           
         </nav>
     )
 }

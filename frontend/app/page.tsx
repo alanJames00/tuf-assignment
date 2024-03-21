@@ -7,7 +7,6 @@ export default function Component() {
 
       <PageHeader />
 
-
       <main className="flex-1">
         <section className="flex flex-col items-center justify-center space-y-2 text-center py-12 md:py-24">
           <div className="space-y-2">
