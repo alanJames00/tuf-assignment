@@ -69,7 +69,7 @@ export default function Component() {
                     {
                         submissions.map((submission: any) => {
                             return (
-                                <TableRow>
+                                <TableRow key={submission.username}>
                                     <TableCell className="flex items-center space-x-2">
                                         <img
                                             alt="User avatar"
