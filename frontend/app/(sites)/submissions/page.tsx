@@ -20,6 +20,15 @@ export default function Component() {
             console.log(data);
 
             let decodedSubmissions = data.map((submission: any) => {
+
+                // create a time object from the timestamp
+                let time = new Date(submission.timestamp);
+                // offset the time by 5:30 hours
+                time.setHours(time.getHours() + 5);
+                time.setMinutes(time.getMinutes() + 30);
+                // format the time
+                submission.timestamp = time.toLocaleString();
+
                 return {
                     username: submission.username,
                     language: submission.language,
@@ -78,7 +87,7 @@ export default function Component() {
                                     <TableCell>{submission.language}</TableCell>
                                     <TableCell>{submission.stdin}</TableCell>
                                     <TableCell>{submission.timestamp}</TableCell>
-                                    <TableCell>{submission.stdout}</TableCell>
+                                    <TableCell>{submission.stdout.substring(0, 95)}</TableCell>
                                     <TableCell>{submission.sourceCode.substring(0, 100)}</TableCell>
 
                                 </TableRow>

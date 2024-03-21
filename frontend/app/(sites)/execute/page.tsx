@@ -16,12 +16,18 @@ import {
 import CodeMirror from '@uiw/react-codemirror';
 
 
+// @ts-ignore
+import {encode, decode} from 'base-64';
+
 export default function Page() {
 
-    const langArray = [ {name: 'C++', id: 54 }, { name: 'Java', id: 62 }, { name: 'Javascript', id: 93 }, { name: 'Python', id: 92 }];
+    const langArray = [ { name: 'C++', id: 54 }, { name: 'Java', id: 62 }, { name: 'Javascript', id: 93 }, { name: 'Python', id: 92 } ];
 
+    console.log(process.env.NEXT_PUBLIC_API_HOST);
+    
     // States
     const [username, setUsername] = useState<string>('');
+    const [isRunning, setRunning] = useState<boolean>(false);
     const [language, SetLanguage] = useState<any>(langArray[0]);
     const [codeString, setCodeString] = useState<string>('');
     const [stdin, setStdnin] = useState<string>('');
@@ -32,26 +38,120 @@ export default function Page() {
     console.log('codeString:', codeString);
     console.log('stdin:', stdin);
     console.log('username: ', username);
+    console.log('output', output);
 
 
     async function runCode() {
+        try {
+            
+            setRunning(true);
 
+
+            // validate username
+            if(username == '' || username.length < 3) {
+                alert('Length of username should be greater than 3');
+                return;
+            }
+
+            const reqBody = {
+                username: username,
+                language: language.id,
+                code: encode(codeString),
+                stdin: encode(stdin),
+            }
+
+            const resp = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/run`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reqBody)
+            });
+
+            const respJson = await resp.json();
+            console.log(respJson);
+            
+            console.log(respJson.compile_output);
+            // check for compile time error
+            if(respJson.compile_output != null) {
+                
+                console.log('compile error called');
+                
+                const compileError = decode(respJson.compile_output);
+                setOutput(compileError);
+            }
+            
+            else {
+                console.log('no issue');
+
+
+                const stdoutEncoded = respJson.stdout;
+                const stdoutDecoded = decode(stdoutEncoded); 
+                setOutput(stdoutDecoded);
+            }
+            
+            setRunning(false);
+        }
+        catch(e) {
+            console.error(e);
+            alert(e)
+            setRunning(false);
+        }
     }
 
     async function submitCode() {
 
+        try {
+
+            setRunning(true);
+
+            const reqBody = {
+                username: username,
+                language: language.id,
+                code: encode(codeString),
+                stdin: encode(stdin),
+            }
+
+            const resp = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reqBody)
+            });
+
+            const respJson = await resp.json();
+            console.log(respJson);
+            setRunning(false);
+
+            console.log(respJson.compile_output);
+            // check for compile time error
+            if(respJson.compile_output != null) {
+                
+                console.log('compile error called');
+                
+                const compileError = decode(respJson.compile_output);
+                setOutput(compileError);
+            }
+            
+            else {
+                console.log('no issue');
+
+
+                const stdoutEncoded = respJson.stdout;
+                const stdoutDecoded = decode(stdoutEncoded); 
+                setOutput(stdoutDecoded);
+            }
+        }
+        catch(e) {
+            console.error(e);
+            alert(e);
+            setRunning(false);
+        }
     }
 
 
-    function encodeBase64(inputString: string): string {
-        const encodedString = btoa(inputString);
-        return encodedString;
-    }
-
-    function decodeBase64(inputString: string): string {
-        const decodedString = atob(inputString);
-        return decodedString;
-    }
+   
 
     return (
         <div className=" mx-4 my-4">
@@ -86,16 +186,27 @@ export default function Page() {
 
                         <div className=" flex justify-between">
 
-                            <Button className=" mx-auto w-[49%] flex md:static">Run Code</Button>
-                            <Button className="bg-green-700 hover:bg-green-400 mx-auto w-[49%] flex md:static">Submit Code</Button>
+                            <Button className=" mx-auto w-[49%] flex md:static" 
+                                    onClick={runCode}
+                                    disabled={isRunning}
+
+                                    >{ isRunning ? 'Please Wait...' : 'Run Code'}</Button>
+                            <Button className="bg-green-700 hover:bg-green-400 mx-auto w-[49%] flex md:static" 
+                                    onClick={submitCode}
+                                    disabled={isRunning}
+
+                                    >{ isRunning ? 'Please Wait...' : 'Submit Code'}</Button>
 
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="output">Output</Label>
+
                             <pre id="output" className="p-2 bg-gray-800 text-white rounded-md overflow-auto h-[300px]">
 
-                                {output}
+                                {
+                                    output.replace(/'/g, '') 
+                                }
 
                             </pre>
                         </div>
