@@ -43,7 +43,7 @@ async function runCode({ stdin, langId, sourceCode }) {
       fields: '*'
     },
     headers: {
-      'X-RapidAPI-Key': '4aa3d62f38msh26169a9b3653ca1p16d1f9jsn9b81366aeea9',
+      'X-RapidAPI-Key': process.env.JUDGE_API_KEY,
       'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
     }
   };
