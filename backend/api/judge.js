@@ -1,5 +1,8 @@
 // interacts with the judge0 API
 const axios = require('axios');
+const { promisify } = require('util');
+const sleep = promisify(setTimeout);
+
 
 async function runCode({ stdin, langId, sourceCode }) {
 
@@ -31,7 +34,7 @@ async function runCode({ stdin, langId, sourceCode }) {
 
     // then get the submission using token
     console.log(submitToken);
-    
+    await sleep(4000); 
     const getOptions = {
     method: 'GET',
     url: `https://judge0-ce.p.rapidapi.com/submissions/${submitToken}`,
